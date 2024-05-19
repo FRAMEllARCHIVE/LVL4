@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PONDER</title>
+    <style>
+
+        body {
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            overflow: hidden;
+            margin: 0;
+            cursor: pointer;
+            background: black;
+        }
+
+        .content {
+            width: 90vw;
+            height: 90vh;
+            max-width: 90vh;
+            max-height: 90vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .background-container {
+            overflow: hidden;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black url("level.webp") no-repeat center center fixed;
+            background-size: contain;
+            z-index: -1;
+        }
+
+        svg {
+            position: absolute;
+        }
+
+        #player {
+            display: none;
+            width: 4px;
+            height: 4px;
+            left:0%; 
+            top:0%; 
+            transform: translate(-50%, -50%);
+        }
+
+        #obstacles {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+        }
+
+        #navigation1 {
+            position: absolute;
+            left: 98%;
+            top: 86%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+        }
+
+        #navigation2 {
+            position: absolute;
+            left: 2%;
+            top: 94%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+        }
+
+        #item1svg {
+            left: 19%;
+            top: 21%;
+            fill: blue;
+        }
+
+</style>
+</head>
+<body>
+
+<div class="content">
+
+<div class="background-container"></div>
+
+<svg id="player" style="left:50%; top:50%; transform: translate(-50%, -50%); position: absolute;">
+            <circle cx="2" cy="2" r="2" fill="blue"/>
+        </svg>
+
+<svg id="obstacles" width="100%" height="100%" viewBox="0 0 97.14 97.14">
+  <path d="M-.5-.5V96.64H96.64V-.5Zm1,96.14V84.13c6.28.05,10,.93,17.43-1.5A140.82,140.82,0,0,1,32.26,78.8V76.13H37.1V73.46h7.5V70H48V66H50.1V63.3h3V60.8h1.83V56.3l-3.5-.67L49.76,51.3l-10.5-8.84-7-5.16-18-11h14.5l9.5,4.5,13.5,8.66,13,10.17L66.6,53l-1.84.34v4.33l2.67,2.67v2H70.6v3.16h2.66v11H65.1v7.87h8.16l11.84-8.2,10.54-7.48v27Z" transform="translate(0.5 0.5)" style="fill:red"/>
+</svg>
+
+<svg id="navigation1" width="80" height="150" viewBox="0 0 50 50">
+            <circle cx="25" cy="25" r="50" fill="blue"/>
+        </svg>
+
+<svg id="navigation2" width="111" height="111" viewBox="0 0 50 50">
+            <circle cx="25" cy="25" r="30" fill="red"/>
+        </svg>
+
+    <svg id="item1svg" width="100" height="100">
+        <circle id="item1" cx="50" cy="50" r="40"/>
+    </svg>
+
+ </div>
+
+<script>
+
+window.addEventListener('load', function() {
+
+const playerSvg = document.getElementById('player');
+const item1click = document.getElementById('item1svg');
+const item1Circle = document.getElementById('item1');
+
+item1click.addEventListener('click', () => {
+    const playerRect = playerSvg.getBoundingClientRect();
+    const item1Rect = item1click.getBoundingClientRect();
+    const playerCenterX = playerRect.left + playerRect.width / 2;
+    const playerCenterY = playerRect.top + playerRect.height / 2;
+    const isPlayerInsideItem1 = (
+        playerCenterX >= item1Rect.left &&
+        playerCenterX <= item1Rect.right &&
+        playerCenterY >= item1Rect.top &&
+        playerCenterY <= item1Rect.bottom
+    );
+
+    item1Circle.style.fill = isPlayerInsideItem1 ? 'red' : 'yellow';
+
+    isPlayerInsideItem1 ?
+        window.parent.postMessage('LIFE1', '*') :
+        window.parent.postMessage('LIFE-1', '*');
+});
+
+       //window.parent.postMessage('ITEM1', '*');
+
+function TeleportPlayer() {
+        const content = document.querySelector('.content');
+        const centerX = content.clientWidth * 0.33;
+        const centerY = content.clientHeight * 0.95;
+        playerSvg.style.left = (centerX - playerSvg.clientWidth / 2) + 'px';
+        playerSvg.style.top = (centerY - playerSvg.clientHeight / 2) + 'px';
+        playerSvg.style.display = 'block';
+        window.parent.postMessage('SETLVL3', '*');
+    }
+
+TeleportPlayer();
+
+
+window.addEventListener('devicemotion', function (event) {
+        movePlayer(-event.accelerationIncludingGravity.x * 2, event.accelerationIncludingGravity.y * 2);
+    });
+
+function movePlayer(velocityX, velocityY) {
+        velocityX *= 0.1;
+        velocityY *= 0.1;
+
+        let playerX = parseFloat(playerSvg.style.left.replace('px', ''));
+        let playerY = parseFloat(playerSvg.style.top.replace('px', ''));
+
+        playerSvg.style.left = (playerX + velocityX) + 'px';
+        if (checkCollision()) {
+            playerSvg.style.left = playerX + 'px';
+        } else {
+            const maxX = window.innerWidth;
+            playerX = Math.max(2, Math.min(playerX + velocityX, maxX - 4));
+        }
+
+        playerSvg.style.top = (playerY + velocityY) + 'px';
+        if (checkCollision()) {
+            playerSvg.style.top = playerY + 'px';
+        } else {
+            const maxY = window.innerHeight;
+            playerY = Math.max(2, Math.min(playerY + velocityY, maxY - 4));
+        }
+
+        playerSvg.style.left = playerX + 'px';
+        playerSvg.style.top = playerY + 'px';
+
+        checkNavigationCollision();
+    }
+
+function checkCollision() {
+        const playerSvg = document.getElementById('player');
+        const playerCircle = playerSvg.querySelector('circle');
+        const playerRect = playerSvg.getBoundingClientRect();
+        const playerCenterX = playerRect.left + parseFloat(playerCircle.getAttribute('cx'));
+        const playerCenterY = playerRect.top + parseFloat(playerCircle.getAttribute('cy'));
+
+        const obstacles = document.querySelectorAll('#obstacles path');
+        const svg = document.querySelector('svg');
+        const point = svg.createSVGPoint();
+        point.x = playerCenterX;
+        point.y = playerCenterY;
+
+        for (let obstacle of obstacles) {
+            const transform = obstacle.getScreenCTM().inverse();
+            const transformedPoint = point.matrixTransform(transform);
+            if (obstacle.isPointInFill(transformedPoint)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+function checkNavigationCollision() {
+            const playerSvg = document.getElementById('player');
+            const navigation2Svg = document.getElementById('navigation2');
+            const navigation1Svg = document.getElementById('navigation1');
+            const playerCircle = playerSvg.querySelector('circle');
+            const playerRect = playerSvg.getBoundingClientRect();
+            const playerCenterX = playerRect.left + parseFloat(playerCircle.getAttribute('cx'));
+            const playerCenterY = playerRect.top + parseFloat(playerCircle.getAttribute('cy'));
+
+            const navigation1Rect = navigation1Svg.getBoundingClientRect();
+            const navigation2Rect = navigation2Svg.getBoundingClientRect();
+
+            if (
+                playerCenterX >= navigation1Rect.left &&
+                playerCenterX <= navigation1Rect.right &&
+                playerCenterY >= navigation1Rect.top &&
+                playerCenterY <= navigation1Rect.bottom
+            ) {
+                window.parent.postMessage('navigateToLVL5', '*');
+            }
+            if (
+                playerCenterX >= navigation2Rect.left &&
+                playerCenterX <= navigation2Rect.right &&
+                playerCenterY >= navigation2Rect.top &&
+                playerCenterY <= navigation2Rect.bottom
+            ) {
+                window.parent.postMessage('navigateToLVL3', '*');
+            }
+        }
+});
+
+</script>
+
+</body>
+</html>
