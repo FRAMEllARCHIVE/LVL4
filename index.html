@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PONDER</title>
+    <title>HEY CHRISTOPHER ^__^)/</title>
     <style>
 
         body {
@@ -86,8 +86,13 @@
  </div>
 
 <script>
+//I REMOVED EVERYTHING THAT WAS UNNECESSARY TO THE PROBLEM AT HAND
+//WORKS PERFECTLY ON ANDROID BUT APPARENTLY iOS REQUIRES SPECIAL PERMISSIONS
+//IT'S NOT RUNNING IN AN IFRAME HERE BUT I CAN TEST THAT AFTER GETTING IT WORKING
 
 window.addEventListener('load', function() {
+    
+//THIS JUST PLACES THE PLAYER
     
 const playerSvg = document.getElementById('player');
     
@@ -103,11 +108,14 @@ function TeleportPlayer() {
 
 TeleportPlayer();
 
+//HERES WHERE THE CONTROL SYSTEM STARTS
 
 window.addEventListener('devicemotion', function (event) {
         movePlayer(-event.accelerationIncludingGravity.x * 2, event.accelerationIncludingGravity.y * 2);
     });
-
+    
+//THIS IS WHERE I ADDED THE PERMISSIONS FOR IOS.
+    
             if (typeof DeviceMotionEvent.requestPermission === 'function') {
                 DeviceMotionEvent.requestPermission()
                     .then(permissionState => {
@@ -120,6 +128,8 @@ window.addEventListener('devicemotion', function (event) {
                 window.addEventListener('devicemotion', handleMotion);
             }
     
+//IT CAN BE COMPLETELY REMOVED WITHOUT AFFECTING THE CODE FOR ANDROID.
+
 function movePlayer(velocityX, velocityY) {
         velocityX *= 0.1;
         velocityY *= 0.1;
