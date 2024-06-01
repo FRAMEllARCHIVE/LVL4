@@ -112,7 +112,7 @@ TeleportPlayer();
 //THIS IS WHERE I ADDED THE PERMISSIONS FOR IOS
 //I ACTUALLY JUST WRAPPED THE DEVICEMOTION EVENT LISTENER INSIDE THE PERMISSION REQUEST WHICH MIGHT HAVE BEEN THE PROBLEM
     
-            if (typeof DeviceMotionEvent.requestPermission === 'function') {
+if (typeof DeviceMotionEvent.requestPermission === 'function') {
                 DeviceMotionEvent.requestPermission()
                     .then(permissionState => {
                         if (permissionState === 'granted') {
@@ -121,12 +121,13 @@ TeleportPlayer();
                     })
                     .catch(console.error);
             } else {
-                  window.addEventListener('devicemotion', function (event) {
-                  movePlayer(-event.accelerationIncludingGravity.x * 2, event.accelerationIncludingGravity.y * 2);
-                  });
+               window.addEventListener('devicemotion', handleMotion);
             }
-    
 
+function handleMotion(event) {
+    movePlayer(-event.accelerationIncludingGravity.x * 2, event.accelerationIncludingGravity.y * 2);
+}
+    
 function movePlayer(velocityX, velocityY) {
         velocityX *= 0.1;
         velocityY *= 0.1;
