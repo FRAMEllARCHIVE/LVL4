@@ -111,6 +111,7 @@ TeleportPlayer();
 //HERES WHERE THE CONTROL SYSTEM STARTS
 //THIS IS WHERE I ADDED THE PERMISSIONS FOR IOS
 //I ACTUALLY JUST WRAPPED THE DEVICEMOTION EVENT LISTENER INSIDE THE PERMISSION REQUEST WHICH MIGHT HAVE BEEN THE PROBLEM
+//I MEAN IT WAS DEFINITELY A PROBLEM BUT WHETHER OR NOT ITS THE SOLUTION IS ANOTHER KETTLE OF FISH
     
 if (typeof DeviceMotionEvent.requestPermission === 'function') {
                 DeviceMotionEvent.requestPermission()
@@ -127,6 +128,10 @@ if (typeof DeviceMotionEvent.requestPermission === 'function') {
 function handleMotion(event) {
     movePlayer(-event.accelerationIncludingGravity.x * 2, event.accelerationIncludingGravity.y * 2);
 }
+    
+//THE REST ACTUALLY GOT UPDATED WITH A FALLCOLLISION DETECTOR THAT BOUNCES THE PLAYER
+//BUT I HAVENT IMPLEMENTED IT YET
+//MONSTERS ARE GOING TO BE DIFFICULT
     
 function movePlayer(velocityX, velocityY) {
         velocityX *= 0.1;
